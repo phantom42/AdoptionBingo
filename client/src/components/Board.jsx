@@ -66,23 +66,6 @@ export default function Board() {
 	if (userBoard.board.length === 25) {
 		localStorage.setItem("userBoard", JSON.stringify(userBoard));
 	}
-
-	const matchedCombos = [] ;
-	WIN_COMBINATIONS.map((combo) => {
-		const matchedSquares = [];
-		combo.map((square) => {
-			const matchedSquare = userBoard.board.find(
-				(s) => s.marked && s.id === square
-			)
-			if (matchedSquare) {
-				matchedSquares.push(square)
-			}
-		})
-		if (matchedSquares.length === 5) {
-			matchedCombos.push(matchedSquares);
-		}
-	})
-
   }, [userBoard]);
 
 
@@ -97,11 +80,12 @@ export default function Board() {
   return (
     <div>
       <button onClick={handleNewBoardClick}>New Board</button>
-	  	<div className={hasWon ? 'pyro' : ''}>
-
-
-	  
-		<div className="before"></div>
+	  {hasWon && (
+	  	<div className="pyro">
+			<div className="before"></div>
+			<div className="after"></div>
+		</div>
+	  )}
       <div id="bingoCard">
 		<div className="adoptionHeader">ADOPTION</div>
         {/* Header */}
@@ -132,8 +116,7 @@ export default function Board() {
           })
         )}
       </div>
-		<div className="after"></div>
+		
 		</div>
-    </div>
   );
 }

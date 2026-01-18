@@ -22,7 +22,7 @@ export default async function handler(req, res){
 					res.status(400).json({message: 'Square already exists'});
 				}
 				const newSquare = await Square.create({
-					value: escaped
+					value: normalizedValue
 				});
 				res.status(201).json(newSquare);
 			} catch (err) {
