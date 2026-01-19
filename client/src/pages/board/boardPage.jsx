@@ -1,4 +1,4 @@
 import Board from "../../components/Board";
-export default function BoardPage() {
+export  function BoardPage() {
 	return <div><Board /></div>
 }

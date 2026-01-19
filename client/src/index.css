@@ -218,3 +218,48 @@ a:hover {
 ul > li {
 	list-style: none;
 }
+
+/* ---------- About Page ---------- */
+.aboutCard {
+	max-width: 640px;
+	margin: 2rem auto;
+	padding: 2rem;
+
+	background-color: var(--bg-card);
+	border: 2px solid var(--border-card);
+	border-radius: 20px;
+
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
+
+	text-align: center;
+}
+
+.aboutTitle {
+	font-size: 2rem;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+	color: var(--accent);
+	margin: 0;
+}
+
+.aboutText {
+	font-size: 1rem;
+	line-height: 1.6;
+	color: var(--text-main);
+	margin: 0;
+}
+
+/* Mobile tightening */
+@media (max-width: 480px) {
+	.aboutCard {
+		padding: 1.5rem;
+		margin: 1.25rem;
+	}
+
+	.aboutTitle {
+		font-size: 1.6rem;
+		letter-spacing: 0.05em;
+	}
+}
