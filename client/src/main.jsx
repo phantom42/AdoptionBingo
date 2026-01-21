@@ -4,10 +4,12 @@ import { Analytics } from '@vercel/analytics/react';
 import './index.css'
 import './fireworks.css'
 import App from './App.jsx'
+import Footer from './components/Footer.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />
 	<Analytics />
+	<Footer />
   </StrictMode>,
 )

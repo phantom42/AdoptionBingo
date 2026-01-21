@@ -1,7 +1,7 @@
 # React + Vite + NodeJS + MongoDB
 
-Vercel Serverless Function API 
+Server: Vercel Serverless Function API 
 
-React + Vite Client side web app
+Client: React + Vite web app
 
-@phantomadoptee
+@phantomAdoptee
