@@ -15,7 +15,7 @@ export function setCors(req, res) {
 	]
 
 	if (ALLOWED_ORIGINS.includes(origin)) {
-		res.setHeader("Access-Control-Allow-Origin", origin);
+		res.setHeader("Access-Control-Allow-Origin", "*");
 	}
 
 	res.setHeader("Access-Control-Allow-Credentials", "true");
@@ -27,11 +27,11 @@ export function setCors(req, res) {
 	
 	if (req.method === "OPTIONS") {
 		console.log("OPTIONS preflight handled");
-		res.status(200).end();
 		res.setHeader(
 			"Access-Control-Allow-Headers", 
 			"Content-Type, X-Requested-With"
 		);
+		res.status(204).end();
 		return true;
 	} else {
 		res.setHeader(
