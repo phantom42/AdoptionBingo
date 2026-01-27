@@ -1,4 +1,5 @@
 export function setCors(req, res) {
+	return false ; //short circuit
 	const origin = req.headers.origin || req.headers.referer;
 	console.log("CORS origin:", origin);
 	console.log('req',req);
