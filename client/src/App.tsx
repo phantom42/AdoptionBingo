@@ -1,3 +1,4 @@
+import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Root from './pages/root';
 import {BoardPage} from './pages/board/BoardPage';
@@ -35,8 +36,19 @@ const router = createBrowserRouter([
 
 function App() {
  
-  return <RouterProvider router={router} />
-  
+  return (
+  <>
+  <header>
+	<SignedOut>
+		<SignInButton />
+	</SignedOut>
+	<SignedIn>
+		<UserButton />
+	</SignedIn>
+  </header>
+  <RouterProvider router={router} />
+  </>
+  )
 }
 
 export default App

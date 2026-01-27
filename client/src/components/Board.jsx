@@ -1,4 +1,7 @@
+import { useUser, useAuth } from "@clerk/clerk-react";
 import { getNewBoard } from "../api/getNewBoard.js";
+import { getUserBoard} from '../api/getUserBoard.js';
+import { saveBoard } from "../api/saveBoard.js";
 import About from "./About.jsx";
 import { useState, useEffect, useMemo } from "react";
 
@@ -22,32 +25,55 @@ const WIN_COMBINATIONS = [
 ]
 
 export default function Board() {
-  const [userBoard, setUserBoard] = useState(() => {
-	const saved = localStorage.getItem("userBoard");
-	return saved 
-	? JSON.parse(saved)
-    : {board: [], user: 0, id: ""}
-  });
 
-  const handleNewBoardClick = async (e) => {
-    e.preventDefault();
-    const newBoard = await getNewBoard();
-    setUserBoard(newBoard);
-  };
+	const { user, isLoaded, isSignedIn} = useUser();
+	const { getToken } = useAuth();
 
-  const toggleSquare = (id) => {
-	/* loop through each square. if it is the correct square and is not the center/free square */
-    setUserBoard((prev) => ({
-      ...prev,
-      board: prev.board.map((square) =>
-        square.id === id && !square.free
-          ? { ...square, marked: !square.marked }
-          : square
-      ),
-    }));
-  };
+	const activeUser = isLoaded && isSignedIn ? user.id : '';
+  	const [userBoard, setUserBoard] = useState(() => {
+		const local = localStorage.getItem("userBoard");
+		return local 
+			? JSON.parse(local)
+			: {board: [], user: activeUser, id: ""}
+		}
+	);
+	
+	const handleNewBoardClick = async (e) => {
+		e.preventDefault();
+	
+		const newBoard = await getNewBoard(activeUser, getToken);
+    	setUserBoard(newBoard);
+  	};
+
+	const toggleSquare = (id) => {
+		/* loop through each square. if it is the correct square and is not the center/free square */
+		setUserBoard((prev) => ({
+      		...prev,
+      		board: prev.board.map((square) =>
+        		square.id === id && !square.free
+          			? { ...square, marked: !square.marked }
+          			: square
+      		),
+	    }));
+		saveUserBoard();
+  	};
+	const saveUserBoard = async ()=> {
+		if (!isSignedIn){
+			setUserBoard(prev => {
+				return {...prev, user: 0}
+			})
+		} 
+		if (!isSignedIn) return false;
+		const token = await getToken();
+		saveBoard(userBoard, token);
+	
+		return true;
+	}
 
 	function checkWin(board) {
+		if (board === undefined) {
+			return false;
+		}
 		const markedIds = new Set(
 			board.filter(s => s.marked).map(s => s.id)
 		);
@@ -61,67 +87,77 @@ export default function Board() {
 		return checkWin(userBoard.board);
 	}, [userBoard.board]);
 
+	useEffect(() => {
+		if ( !isLoaded) return;
+		if (!isSignedIn) return ;
+	
+		async function load() {
+			const existingBoard = await getUserBoard(user.id, getToken);
+			if (existingBoard.board && existingBoard.board.length === 25) setUserBoard(existingBoard);
+		}
+		load();
+	}, [isSignedIn, isLoaded, user?.id, getToken])
+
+	useEffect(() => {
+		if (userBoard.board && userBoard.board.length === 25) {
+			localStorage.setItem("userBoard", JSON.stringify(userBoard));
+		}
+	}, [userBoard]);
 
 
-  useEffect(() => {
-	if (userBoard.board.length === 25) {
-		localStorage.setItem("userBoard", JSON.stringify(userBoard));
+	if (!userBoard?.board || (userBoard.board && userBoard.board.length < 25)) {
+		return <About handleNewBoardClick={handleNewBoardClick} />
 	}
-  }, [userBoard]);
 
-  if (userBoard.board.length < 25) {
-	return <About handleNewBoardClick={handleNewBoardClick} />
-  }
+	if (userBoard.board && userBoard.board.length !== 25) {
+		return (
+			<div>
+				<button onClick={handleNewBoardClick}>New Board</button>
+			</div>
+		);
+	}
 
-  if (userBoard.board.length !== 25) {
-    return (
-      <div>
-        <button onClick={handleNewBoardClick}>New Board</button>
-      </div>
-    );
-  }
+	return (
+		<div>
+			<button onClick={handleNewBoardClick}>New Board</button>
+			{hasWon && (
+				<div className="pyro">
+					<div className="before"></div>
+					<div className="after"></div>
+				</div>
+			)}
+			<div className="boardContainer">
+				<div id="bingoCard">
+					<div className="adoptionHeader">ADOPTION</div>
+					{/* Header */}
+					{COLUMNS.map((col) => (
+					<div key={col} className="bingoHeader">
+						{col.toUpperCase()}
+					</div>
+					))}
 
-  return (
-    <div>
-      <button onClick={handleNewBoardClick}>New Board</button>
-	  {hasWon && (
-	  	<div className="pyro">
-			<div className="before"></div>
-			<div className="after"></div>
+					{/* Squares */}
+					{userBoard.board && userBoard.board.length ===25 && ROWS.map((row) =>
+					COLUMNS.map((column) => {
+						const square = userBoard.board.find(
+						(s) => s.column === column && s.row === row
+						);
+
+						return (
+						<div
+							key={square.id}
+							className={`square ${square.marked ? "marked" : ""} ${
+							square.free ? "free" : ""
+							}`}
+							onClick={() => toggleSquare(square.id)}
+						>
+							{square.value}
+						</div>
+						);
+					})
+					)}
+				</div>
+			</div>
 		</div>
-	  )}
-	  <div className="boardContainer">
-      <div id="bingoCard">
-		<div className="adoptionHeader">ADOPTION</div>
-        {/* Header */}
-        {COLUMNS.map((col) => (
-          <div key={col} className="bingoHeader">
-            {col.toUpperCase()}
-          </div>
-        ))}
-
-        {/* Squares */}
-        {ROWS.map((row) =>
-          COLUMNS.map((column) => {
-            const square = userBoard.board.find(
-              (s) => s.column === column && s.row === row
-            );
-
-            return (
-              <div
-                key={square.id}
-                className={`square ${square.marked ? "marked" : ""} ${
-                  square.free ? "free" : ""
-                }`}
-                onClick={() => toggleSquare(square.id)}
-              >
-                {square.value}
-              </div>
-            );
-          })
-        )}
-      </div>
-		</div>
-		</div>
-  );
+  	);
 }
