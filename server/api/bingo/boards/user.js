@@ -1,8 +1,10 @@
+import { setCors } from "../../../lib/cors.js";
 import connectDB from "../../../db/connect.js";
 import { getUserBoard } from "../../../lib/boards.js";
 import { getAuthFromRequest } from "../../../lib/clerk.js";
 
 export default async function handler (req, res) {
+	setCors(req,res);
 	const {userId} = await getAuthFromRequest(req);
 	switch(req.method) {
 		case 'GET':

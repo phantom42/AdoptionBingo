@@ -1,6 +1,8 @@
+import { setCors } from "../../lib/cors.js";
 import connectDB from "../../db/connect.js";
 import Square from '../../models/Square.js'
 export default async function handler(req, res){
+	setCors(req, res);
 	switch(req.method) {
 		case 'GET':
 			res.status(200).json({message: 'ok'});
