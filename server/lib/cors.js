@@ -1,5 +1,5 @@
 export function setCors(req, res) {
-	const origin = req.headers.origin;
+	const origin = req.headers.origin || req.headers.referer;
 	console.log("CORS origin:", origin);
 
 	const ALLOWED_ORIGINS = [
